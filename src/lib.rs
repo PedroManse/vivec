@@ -1,14 +1,10 @@
 use std::fmt::Debug;
 
-/// Virtually Indexed Vector
-/// if the feature `reverse_id_search` is enabled, it's possible to get the ID of a node from it's
-/// index
+/// Virtually Indexed Vector;
 #[derive(Debug)]
 pub struct ViVec<T> {
     nodes: Vec<T>,
     id_to_index: Vec<usize>,
-    #[cfg(feature = "reverse_id_search")]
-    index_to_id: Vec<usize>,
 }
 
 impl<T> ViVec<T> {
@@ -16,8 +12,6 @@ impl<T> ViVec<T> {
         Self {
             nodes: vec![],
             id_to_index: vec![],
-            #[cfg(feature = "reverse_id_search")]
-            index_to_id: vec![],
         }
     }
 
@@ -25,27 +19,14 @@ impl<T> ViVec<T> {
         self.nodes.len()
     }
 
+    pub fn used_ids(&self) -> &[usize] {
+        &self.id_to_index[0..self.nodes.len()]
+    }
+
     pub fn unused_ids(&self) -> usize {
         self.id_to_index.len() - self.nodes.len()
     }
 
-    #[cfg(feature = "reverse_id_search")]
-    pub fn append(&mut self, data: T) {
-        let unused_ids = self.unused_ids();
-        let new_id = if unused_ids != 0 {
-            // acquire unused id
-            self.id_to_index[self.id_to_index.len() - unused_ids]
-        } else {
-            // push new id
-            let new_id = self.id_to_index.len();
-            self.id_to_index.push(new_id);
-            new_id
-        };
-        self.index_to_id.push(new_id);
-        self.nodes.push(data);
-    }
-
-    #[cfg(not(feature = "reverse_id_search"))]
     pub fn append(&mut self, data: T) {
         let unused_ids = self.unused_ids();
         if unused_ids == 0 {
@@ -61,8 +42,6 @@ impl<T> ViVec<T> {
             assert!(id1 < self.nodes.len());
             assert!(id2 < self.nodes.len());
             self.nodes.swap(id1, id2);
-            #[cfg(feature = "reverse_id_search")]
-            self.index_to_id.swap(id1, id2);
             self.id_to_index.swap(id1, id2);
         }
     }
@@ -80,8 +59,6 @@ impl<T> ViVec<T> {
         // send to-be-removed node to last place
         self.swap(pop_idx, swap_idx);
         // remove last node
-        #[cfg(feature = "reverse_id_search")]
-        self.index_to_id.pop()?;
         self.nodes.pop()
     }
 
@@ -97,6 +74,10 @@ impl<T> ViVec<T> {
 
     pub fn get_by_index(&self, idx: usize) -> Option<&T> {
         self.nodes.get(idx)
+    }
+
+    pub fn get_id_by_index(&self, id: usize) -> Option<&usize> {
+        self.used_ids().get(id)
     }
 
     pub fn get_mut_by_inxed(&mut self, idx: usize) -> Option<&mut T> {
@@ -140,8 +121,6 @@ impl<T> From<Vec<T>> for ViVec<T> {
         ViVec {
             nodes: value,
             id_to_index: p.clone(),
-            #[cfg(feature = "reverse_id_search")]
-            index_to_id: p,
         }
     }
 }

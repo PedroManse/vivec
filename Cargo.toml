@@ -10,7 +10,3 @@ style = { level = "deny", priority = -1 }
 pedantic = { level = "deny", priority = -1 }
 unwrap-used = "warn"
 missing-errors-doc = "warn"
-
-[features]
-default = [  ]
-reverse_id_search = []
