@@ -4,7 +4,6 @@ use std::fmt::Debug;
 #[derive(Debug)]
 pub struct ViVec<T> {
     nodes: Vec<T>,
-    /// value at index 3 shows the node index of data where id=3
     id_to_index: Vec<usize>,
 }
 
@@ -20,12 +19,12 @@ impl<T> ViVec<T> {
         self.nodes.len()
     }
 
-    pub fn used_ids(&self) -> &[usize] {
-        &self.id_to_index[0..self.nodes.len()]
-    }
-
     pub fn unused_ids(&self) -> usize {
         self.id_to_index.len() - self.nodes.len()
+    }
+
+    pub fn idx_of_last_used_id(&self) -> usize {
+        self.id_to_index.len() - self.unused_ids() - 1
     }
 
     pub fn append(&mut self, data: T) {
@@ -42,21 +41,18 @@ impl<T> ViVec<T> {
         if id1 != id2 {
             assert!(id1 < self.nodes.len());
             assert!(id2 < self.nodes.len());
-            self.nodes.swap(id1, id2);
             self.id_to_index.swap(id1, id2);
         }
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        // get last used id and remove it
-        let pop_idx = *self.id_to_index.last()? - self.unused_ids();
-        self.unlink(pop_idx)
+        self.unlink(self.idx_of_last_used_id())
     }
 
     /// # Data will be removed and id will be left dangling
     pub fn unlink(&mut self, pop_idx: usize) -> Option<T> {
         // get id of last node in data vec
-        let swap_idx = *self.id_to_index.last()?;
+        let swap_idx = self.idx_of_last_used_id();
         // send to-be-removed node to last place
         self.swap(pop_idx, swap_idx);
         // remove last node
@@ -155,4 +151,3 @@ impl<I> FromIterator<I> for ViVec<I> {
         Self::from(iter.into_iter().collect::<Vec<I>>())
     }
 }
-

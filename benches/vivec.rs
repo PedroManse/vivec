@@ -1,13 +1,13 @@
 use divan::Bencher;
-use std::collections::LinkedList;
 use fast_ds::vivec::ViVec;
+use std::collections::LinkedList;
 
 fn main() {
     // Run registered benchmarks.
     divan::main();
 }
 
-const V: std::ops::Range<u128> = 0..(1 << 16);
+const V: std::ops::Range<u128> = 0..(1 << 18);
 
 #[divan::bench(sample_count = 500)]
 fn collect_vivec() -> ViVec<u128> {

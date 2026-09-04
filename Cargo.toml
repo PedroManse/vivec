@@ -9,7 +9,7 @@ edition = "2024"
 divan = "0.1.21"
 
 [[bench]]
-name = "example"
+name = "vivec"
 harness = false
 
 [lints.clippy]
