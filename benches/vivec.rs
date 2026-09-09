@@ -7,7 +7,7 @@ fn main() {
     divan::main();
 }
 
-const V: std::ops::Range<u128> = 0..(1 << 18);
+const V: std::ops::Range<u128> = 0..(1 << 16);
 
 #[divan::bench(sample_count = 500)]
 fn collect_vivec() -> ViVec<u128> {

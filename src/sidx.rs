@@ -38,6 +38,7 @@ impl<T: SparselyIndexable + std::fmt::Debug> SparseIndex<T> {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::{SparseIndex, SparselyIndexable};
     #[derive(Debug)]
